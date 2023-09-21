@@ -1,5 +1,4 @@
 const express = require('express');
-const { default: inquirer } = require('inquirer');
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const markdown = require('')
@@ -15,9 +14,9 @@ const db = mysql.createConnection(
     host: 'localhost',
     user: 'root',
     password: 'luckydog',
-    database: 'books_db'
+    database: 'acme_db'
   },
-  console.log(`Connected to the books_db database.`)
+  console.log(`Connected to the acme_db database.`)
 );
 
 function init() {
@@ -53,3 +52,17 @@ function init() {
 
 // Function call to initialize app
 init();
+
+// Query database
+db.query('SELECT * FROM employee', function (err, results) {
+    console.log(results);
+});
+
+// Default response for any other request (Not Found)
+app.use((req, res) => {
+res.status(404).end();
+});
+
+app.listen(PORT, () => {
+console.log(`Server running on port ${PORT}`);
+});
