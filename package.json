@@ -13,5 +13,5 @@
     "inquirer": "^8.2.4",
     "mysql2": "^3.6.1"
   },
-  "description": ""
+  "description": "[![Github License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)"
 }
