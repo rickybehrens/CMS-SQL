@@ -2,7 +2,7 @@ const express = require('express');
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 const app = express();
 
 app.use(express.urlencoded({ extended: false }));
@@ -83,13 +83,10 @@ function init() {
           break;
 
         case 'Update employee role':
-
-          init();
+          updateEmployeeRole();
           break;
 
         case 'Update employee manager':
-
-          init();
           break;
 
         case 'Add role':
@@ -183,7 +180,6 @@ const addRole = () => {
     if (error) throw error;
     let deptArray = [];
     response.forEach((department) => { deptArray.push(department.name); });
-    deptArray.push('Create Department');
     inquirer
       .prompt([
         {
@@ -194,14 +190,9 @@ const addRole = () => {
         }
       ])
       .then((answer) => {
-        if (answer.departmentName === 'Create Department') {
-          addDepartment();
-        } else {
-          addRoleInfo(answer);
-        }
+        addRoleInfo(answer);
       });
-    });
-  
+
     const addRoleInfo = (departmentData) => {
       inquirer
         .prompt([
@@ -233,123 +224,188 @@ const addRole = () => {
       const sql = `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`;
       const crit = [title, salary, departmentId];
 
-    db.query(sql, crit, (error) => {
-      if (error) throw error;
-      console.log('Role successfully created!');
-      viewAllRoles();
-    });
-  };
+      db.query(sql, crit, (error) => {
+        if (error) throw error;
+        console.log('Role successfully created!');
+        viewAllRoles();
+      });
+    };
+  });
 };
 
-const addNewEmployee = () => {
-  inquirer
-    .prompt([
-      {
-        type: "input",
-        name: "firstName",
-        message: "What's the new employee's first name?",
-      },
-      {
-        type: "input",
-        name: "lastName",
-        message: "What's the new employee's last name?",
-      },
-      {
-        type: "list",
-        name: "department",
-        message: "What department will the new employee work?",
-        choices: [
-          "Sales and Marketing",
-          "IT",
-          "Legal",
-          "Accounting",
-          "Purchasing",
-          "HR",
-          "Production",
-        ],
-      },
-      {
-        type: "list",
-        name: "roleId",
-        message: "What's the new employee's role?",
-        choices: [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9,
-          10,
-          11,
-          12,
-          13,
-          14,
-          15,
-          16,
-          17,
-          18,
-          19,
-          20,
-          21,
-          22,
-          23,
-        ],
-      },
-      {
-        type: "list",
-        name: "managerId",
-        message: "Who's the new employee's manager?",
-        choices: [
-          2,
-          5,
-          8,
-          11,
-          14,
-          16,
-          18,
-          22,
-          23,
-        ],
-      },
-    ])
-    .then((employeeData) => {
-      console.log(employeeData.firstName)
-      // Create a SQL query to insert the new employee
-      const query = `
+// Add New Employee
+  const addNewEmployee = () => {
+    inquirer
+      .prompt([
+        {
+          type: "input",
+          name: "firstName",
+          message: "What's the new employee's first name?",
+        },
+        {
+          type: "input",
+          name: "lastName",
+          message: "What's the new employee's last name?",
+        },
+        {
+          type: "list",
+          name: "department",
+          message: "What department will the new employee work?",
+          choices: [
+            "Sales and Marketing",
+            "IT",
+            "Legal",
+            "Accounting",
+            "Purchasing",
+            "HR",
+            "Production",
+          ],
+        },
+        {
+          type: "list",
+          name: "roleId",
+          message: "What's the new employee's role?",
+          choices: [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+          ],
+        },
+        {
+          type: "list",
+          name: "managerId",
+          message: "Who's the new employee's manager?",
+          choices: [
+            2,
+            5,
+            8,
+            11,
+            14,
+            16,
+            18,
+            22,
+            23,
+          ],
+        },
+      ])
+      .then((employeeData) => {
+        console.log(employeeData.firstName)
+        // Create a SQL query to insert the new employee
+        const query = `
         INSERT INTO employee (first_name, last_name, role_id, manager_id)
         VALUES (?, ?, ?, ?)
       `;
 
-      // Execute the query with the provided employee data
-      db.query(
-        query,
-        [
-          employeeData.firstName,
-          employeeData.lastName,
-          employeeData.roleId,
-          employeeData.managerId || null, // Use null if manager_id is not provided
-        ],
-        (err, results) => {
-          if (err) {
-            console.error('Error adding employee:', err);
-          } else {
-            console.log('Employee added successfully!');
+        // Execute the query with the provided employee data
+        db.query(
+          query,
+          [
+            employeeData.firstName,
+            employeeData.lastName,
+            employeeData.roleId,
+            employeeData.managerId || null, // Use null if manager_id is not provided
+          ],
+          (err, results) => {
+            if (err) {
+              console.error('Error adding employee:', err);
+            } else {
+              console.log('Employee added successfully!');
+            }
+            // Close the database connection
           }
-          // Close the database connection
-        }
-      );
-      init();
+        );
+        init();
+      });
+  };
+
+// Update Employee's Role
+const updateEmployeeRole = () => {
+  let sql =       `SELECT employee.id, employee.first_name, employee.last_name, role.id AS "role_id"
+                  FROM employee, role, department WHERE department.id = role.department_id AND role.id = employee.role_id`;
+  db.query(sql, (error, response) => {
+    if (error) throw error;
+    let employeeNamesArray = [];
+    response.forEach((employee) => {employeeNamesArray.push(`${employee.first_name} ${employee.last_name}`);});
+
+    let sql =     `SELECT role.id, role.title FROM role`;
+    db.query(sql, (error, response) => {
+      if (error) throw error;
+      let rolesArray = [];
+      response.forEach((role) => {rolesArray.push(role.title);});
+
+      inquirer
+        .prompt([
+          {
+            name: 'chosenEmployee',
+            type: 'list',
+            message: 'Which employee has a new role?',
+            choices: employeeNamesArray
+          },
+          {
+            name: 'chosenRole',
+            type: 'list',
+            message: 'What is their new role?',
+            choices: rolesArray
+          }
+        ])
+        .then((answer) => {
+          let newTitleId, employeeId;
+
+          response.forEach((role) => {
+            if (answer.chosenRole === role.title) {
+              newTitleId = role.id;
+            }
+          });
+
+          response.forEach((employee) => {
+            if (
+              answer.chosenEmployee ===
+              `${employee.first_name} ${employee.last_name}`
+            ) {
+              employeeId = employee.id;
+            }
+          });
+
+          let sqls = `UPDATE employee SET employee.role_id = ? WHERE employee.id = ?`;
+          db.query(
+            sqls,
+            [newTitleId, employeeId],
+            (error) => {
+              if (error) throw error;
+              console.log('Employee Role Updated');
+              init();
+            }
+          );
+        });
     });
+  });
 };
 
-// Default response for any other request (Not Found)
-app.use((req, res) => {
-  res.status(404).end();
-});
+  // Default response for any other request (Not Found)
+  app.use((req, res) => {
+    res.status(404).end();
+  });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
