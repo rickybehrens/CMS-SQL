@@ -47,7 +47,7 @@ function init() {
     .then((data) => {
       switch (data.main) {
         case 'View all departments':
-          constviewAllDepartments();
+          viewAllDepartments();
           break;
 
         case 'View all roles':
@@ -56,6 +56,11 @@ function init() {
 
         case 'View all employees':
           viewAllEmployees();
+          break;
+
+        case 'Add department':
+          addDepartment()
+          init();
           break;
 
           // case 'View all employees by department':  
@@ -88,16 +93,10 @@ function init() {
           break;
 
         case 'Add role':
-
-          init();
+          addRole()
           break;
 
         case 'Remove role':
-
-          init();
-          break;
-
-        case 'Add department':
 
           init();
           break;
@@ -122,9 +121,6 @@ function init() {
 // Function call to initialize app
 init();
 
-// view all departments
-// view all roles
-// view all employees
 // add a department
 // remove department
 // add a role
@@ -135,7 +131,7 @@ init();
 // quit
 
 // View All Departments
-constviewAllDepartments = () => {
+const viewAllDepartments = () => {
   db.query('SELECT * FROM department', function (err, response) {
     console.table(response);
   });
@@ -144,10 +140,11 @@ constviewAllDepartments = () => {
 
 // View All Roles
 const viewAllRoles = () => {
-  db.query('SELECT * FROM role', function (err, results) {
-    console.table(results);
+  const sql = `SELECT role.id, role.title, department.name AS 'department' FROM role INNER JOIN department ON role.department_id = department.id`;
+  db.query(sql, (err, response) => {
+    console.table(response);
+    init();
   });
-  init();
 };
 
 // View All Employees
@@ -159,13 +156,90 @@ const viewAllEmployees = () => {
   });
 };
 
-// const viewEmployeesByDepartment = () => {
-//   const sql = `SELECT employee.first_name, employee.last_name, department.name AS 'department', CONCAT(m.first_name, ' ', m.last_name) AS 'manager', role.salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee m ON employee.manager_id = m.id ORDER BY department.name ASC`;
-//   db.query(sql, (error, response) => {
-//     console.table(response)
-//     init();
-//   });
-// };
+// Add a New Department
+const addDepartment = () => {
+  inquirer
+    .prompt([
+      {
+        name: 'newDepartment',
+        type: 'input',
+        message: 'What is the name of the new department?',
+      }
+    ])
+    .then((answer) => {
+      let sql = `INSERT INTO department (department.name) VALUES (?)`;
+      db.query(sql, answer.newDepartment, (error, response) => {
+        if (error) throw error;
+        console.log('Department successfully created!');
+        init();
+      });
+    });
+};
+
+// Add a New Role
+const addRole = () => {
+  const sql = 'SELECT * FROM department'
+  db.query(sql, (error, response) => {
+    if (error) throw error;
+    let deptArray = [];
+    response.forEach((department) => { deptArray.push(department.name); });
+    deptArray.push('Create Department');
+    inquirer
+      .prompt([
+        {
+          name: 'departmentName',
+          type: 'list',
+          message: 'In which department is this new role located?',
+          choices: deptArray
+        }
+      ])
+      .then((answer) => {
+        if (answer.departmentName === 'Create Department') {
+          addDepartment();
+        } else {
+          addRoleInfo(answer);
+        }
+      });
+    });
+  
+    const addRoleInfo = (departmentData) => {
+      inquirer
+        .prompt([
+          {
+            name: 'newRole',
+            type: 'input',
+            message: 'What is the name of the new role?',
+          },
+          {
+            name: 'salary',
+            type: 'input',
+            message: 'What is the salary for this new role?',
+          }
+        ])
+        .then((answer) => {
+          const createdRole = answer.newRole;
+          const salary = answer.salary;
+          let departmentId;
+
+          response.forEach((department) => {
+            if (departmentData.departmentName === department.name) { departmentId = department.id; }
+          });
+
+          insertRole(createdRole, salary, departmentId);
+        });
+    };
+
+    const insertRole = (title, salary, departmentId) => {
+      const sql = `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`;
+      const crit = [title, salary, departmentId];
+
+    db.query(sql, crit, (error) => {
+      if (error) throw error;
+      console.log('Role successfully created!');
+      viewAllRoles();
+    });
+  };
+};
 
 const addNewEmployee = () => {
   inquirer
