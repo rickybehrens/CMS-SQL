@@ -2,12 +2,18 @@ const express = require('express');
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const db = require('./config/connections');
+const figlet = require('figlet');
 
 const PORT = process.env.PORT || 3001;
 const app = express();
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
+console.log('/////////////////////////////////////////////////////////////////////////////////////');
+console.log(figlet.textSync('Employee Tracker'));
+console.log('');
+console.log('/////////////////////////////////////////////////////////////////////////////////////');
 
 function init() {
   inquirer
@@ -47,7 +53,6 @@ function init() {
 
         case 'Add department':
           addDepartment()
-          init();
           break;
 
         case 'Add role':
