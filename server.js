@@ -226,6 +226,7 @@ const addNewEmployee = () => {
       db.query(roleRequest, (error, data) => {
         if (error) throw error;
         const roles = data.map(({ id, title }) => ({ name: title, value: id }));
+
         inquirer.prompt([
           {
             type: 'list',
@@ -241,6 +242,10 @@ const addNewEmployee = () => {
             db.query(managerRequest, (error, data) => {
               if (error) throw error;
               const managers = data.map(({ id, first_name, last_name }) => ({ name: first_name + ' ' + last_name, value: id }));
+
+              // Add "null" as a choice for manager
+              managers.unshift({ name: 'null', value: null });
+
               inquirer.prompt([
                 {
                   type: 'list',
