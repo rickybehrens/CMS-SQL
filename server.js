@@ -132,7 +132,6 @@ const addDepartment = () => {
         if (error) throw error;
         console.log('Department successfully created!');
         viewAllDepartments();
-        init();
       });
     });
 };
@@ -264,7 +263,6 @@ const addNewEmployee = () => {
                     if (error) throw error;
                     console.log("Employee has been added!")
                     viewAllEmployees();
-                    init();
                   });
                 });
             });
@@ -366,7 +364,6 @@ const removeDepartment = () => {
           if (error) throw error;
           console.log('Department Successfully Removed');
           viewAllDepartments();
-          init();
         });
       });
   });
@@ -404,7 +401,6 @@ const removeRole = () => {
           if (error) throw error;
           console.log('Role Successfully Removed');
           viewAllRoles();
-          init();
         });
       });
   });
@@ -445,7 +441,6 @@ const removeEmployee = () => {
           if (error) throw error;
           console.log('Employee Successfully Removed');
           viewAllEmployees();
-          init();
         });
       });
   });
