@@ -1,23 +1,13 @@
 const express = require('express');
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
-const connections = require('./config/connections');
+const db = require('./config/connections');
 
 const PORT = process.env.PORT || 3001;
 const app = express();
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-
-const db = mysql.createConnection(
-  {
-    host: 'localhost',
-    user: 'root',
-    password: 'luckydog',
-    database: 'acme_db'
-  },
-  console.log(`Connected to the acme_db database.`)
-);
 
 function init() {
   inquirer
