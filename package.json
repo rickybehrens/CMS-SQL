@@ -13,5 +13,9 @@
     "inquirer": "^8.2.4",
     "mysql2": "^3.6.1"
   },
-  "description": "[![Github License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)"
+  "description": "[![Github License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)",
+  "devDependencies": {
+    "dotenv": "^16.3.1",
+    "figlet": "^1.6.0"
+  }
 }
