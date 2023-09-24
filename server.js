@@ -1,19 +1,13 @@
-const express = require('express');
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
 const db = require('./config/connections');
 const figlet = require('figlet');
 
-const PORT = process.env.PORT || 3001;
-const app = express();
 
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-
-console.log('/////////////////////////////////////////////////////////////////////////////////////');
-console.log(figlet.textSync('Employee Tracker'));
+console.log('///////////////////////////////////////////////////////////////////////////////////////////////');
+console.log(figlet.textSync('Employee Tracker 1.0'));
 console.log('');
-console.log('/////////////////////////////////////////////////////////////////////////////////////');
+console.log('///////////////////////////////////////////////////////////////////////////////////////////////');
 
 function init() {
   inquirer
@@ -91,7 +85,7 @@ init();
 
 // View All Departments
 const viewAllDepartments = () => {
-  const request = 'SELECT department.name, department.id FROM department';
+  const request = 'SELECT * FROM department';
   db.query(request, (err, response) => {
     console.table(response);
     init();
@@ -243,10 +237,10 @@ const addNewEmployee = () => {
           .then(roleChoice => {
             const role = roleChoice.role;
             param.push(role);
-            const managerRequest = `SELECT * FROM employee`;
+            const managerRequest = 'SELECT * FROM employee';
             db.query(managerRequest, (error, data) => {
               if (error) throw error;
-              const managers = data.map(({ id, first_name, last_name }) => ({ name: first_name + " " + last_name, value: id }));
+              const managers = data.map(({ id, first_name, last_name }) => ({ name: first_name + ' ' + last_name, value: id }));
               inquirer.prompt([
                 {
                   type: 'list',
@@ -261,7 +255,7 @@ const addNewEmployee = () => {
                   const request = 'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)';
                   db.query(request, param, (error) => {
                     if (error) throw error;
-                    console.log("Employee has been added!")
+                    console.log('Employee has been added!');
                     viewAllEmployees();
                   });
                 });
@@ -446,11 +440,4 @@ const removeEmployee = () => {
   });
 };
 
-// Default response for any other request (Not Found)
-app.use((req, res) => {
-  res.status(404).end();
-});
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
