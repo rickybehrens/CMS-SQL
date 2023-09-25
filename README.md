@@ -1,4 +1,4 @@
-# README Generator 1.1
+# CMS-SQL-Employee_Tracker_1.0
 [![Github License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <br>
 Video Deonstration:<br>
